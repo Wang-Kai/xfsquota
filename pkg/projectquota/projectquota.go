@@ -62,10 +62,11 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"github.com/silenceper/xfsquota/pkg/mountpoint"
 	"path"
 	"strings"
 	"unsafe"
+
+	"github.com/silenceper/xfsquota/pkg/mountpoint"
 
 	"golang.org/x/sys/unix"
 	"k8s.io/klog/v2"
@@ -263,6 +264,14 @@ func (p *ProjectQuota) findAvailableBackingDev(targetPath string) (*backingDev, 
 	return backingFsBlockDev, nil
 }
 
+func (p *ProjectQuota) IsSupportPrjQuota(targetPath string) (bool, error) {
+	backingFsBlockDev, err := p.findAvailableBackingDev(targetPath)
+	if err != nil {
+		return false, err
+	}
+	return backingFsBlockDev.supported, nil
+}
+
 // findOrCreateBackingDev will create a fake device to set project quota,
 // the fake device will be sharing among the paths with the same mount point,
 // so the function will find the mount point and create a sharing fake device.
@@ -332,7 +341,7 @@ func (p *ProjectQuota) findOrCreateBackingDev(targetPath string) (*backingDev, e
 	return backingDevice, nil
 }
 
-//findOrCreateSharedProjectId check if the path already has an shared project id, creating if not.
+// findOrCreateSharedProjectId check if the path already has an shared project id, creating if not.
 func (p *ProjectQuota) findOrCreateSharedProjectId(targetPath, projName string) (quotaID, bool, error) {
 	isNewId := false
 

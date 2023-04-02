@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/silenceper/xfsquota/pkg/xfsquota"
 	"github.com/spf13/cobra"
 )
@@ -36,6 +37,25 @@ var getQuotaCmd = &cobra.Command{
 		fmt.Println("quota Inodes:", quotaRes.Inodes)
 		fmt.Println("diskUsage Size(bytes):", quotaRes.QuotaUsed)
 		fmt.Println("diskUsage Inodes:", quotaRes.InodesUsed)
+	},
+}
+
+var isSupportPrjQuota = &cobra.Command{
+	Use:     "is-support",
+	Short:   "check target path support project quota or not",
+	Example: "xfsquota is-support /home/user",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			cmd.Help()
+			return
+		}
+		isSupport, err := xfsQuota.IsSupport(args[0])
+		if err != nil {
+			panic(err)
+		}
+		if isSupport {
+			fmt.Printf("The path (%s) is support project xfs quota", args[0])
+		}
 	},
 }
 
@@ -93,6 +113,7 @@ func init() {
 	rootCmd.AddCommand(setQuotaCmd)
 	rootCmd.AddCommand(cleanQuotaCmd)
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(isSupportPrjQuota)
 }
 
 func main() {

@@ -19,6 +19,10 @@ func NewXfsQuota() *XfsQuota {
 	}
 }
 
+func (q *XfsQuota) IsSupport(path string) (bool, error) {
+	return q.ProjectQuota.IsSupportPrjQuota(path)
+}
+
 // GetQuota returns the quota for the given path
 func (q *XfsQuota) GetQuota(path string) (*projectquota.DiskQuotaSize, error) {
 	return q.ProjectQuota.GetQuota(path)
